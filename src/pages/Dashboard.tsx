@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Heart, Wind, Bed, Footprints, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { HealthMetricCard } from '../components/HealthMetricCard';
 import { HeartRateChart } from '../components/HeartRateChart';
 import { ActivityChart } from '../components/ActivityChart';
+import { BPDashboardWidget } from '../components/BPDashboardWidget';
+import { BPInputModal } from '../components/BPInputModal';
+import { WearableDeviceBPManager } from '../components/WearableDeviceBPManager';
 import { 
   simulateRealTimeData, 
   HealthData, 
@@ -13,17 +17,21 @@ import {
   getManualInsights,
   ManualInsight
 } from '../lib/api';
+import type { BloodPressureReading } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { ManualInputModal } from '../components/ManualInputModal';
 import { InsightCard } from '../components/InsightCard';
 import { toast } from 'sonner';
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const [healthData, setHealthData] = useState<HealthData | null>(null);
   const [aiStatus, setAiStatus] = useState({ status: 'Normal', message: 'All systems are running smoothly.' });
   const [heartRateHistory, setHeartRateHistory] = useState<HeartRateDataPoint[]>(getHeartRateHistory());
   const [activityHistory, ] = useState<ActivityDataPoint[]>(getActivityHistory());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBPModalOpen, setIsBPModalOpen] = useState(false);
+  const [bpRefreshTrigger, setBPRefreshTrigger] = useState(0);
   const [insights, setInsights] = useState<ManualInsight | null>(null);
 
   useEffect(() => {
@@ -110,15 +118,40 @@ export function Dashboard() {
         />
       </div>
 
-      <div className='grid gap-4 md:grid-cols-2'>
-        <HeartRateChart data={heartRateHistory} />
-        <ActivityChart data={activityHistory} />
+      <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
+        <div className='lg:col-span-2'>
+          <div className='grid gap-4 md:grid-cols-2'>
+            <HeartRateChart data={heartRateHistory} />
+            <ActivityChart data={activityHistory} />
+          </div>
+        </div>
+        <div className='space-y-4'>
+          <BPDashboardWidget 
+            onAddReading={() => setIsBPModalOpen(true)}
+            onViewHistory={() => navigate('/blood-pressure')}
+            refreshTrigger={bpRefreshTrigger}
+          />
+          <WearableDeviceBPManager 
+            onReadingReceived={(reading: BloodPressureReading) => {
+              // Auto-refresh BP widget and show toast
+              setBPRefreshTrigger(prev => prev + 1);
+              const { systolic, diastolic } = reading;
+              toast.success(`Device BP: ${systolic}/${diastolic} mmHg`);
+            }}
+          />
+        </div>
       </div>
 
       <ManualInputModal 
         isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
         onSubmit={handleManualSubmit}
+      />
+
+      <BPInputModal 
+        isOpen={isBPModalOpen}
+        onOpenChange={setIsBPModalOpen}
+        onSaved={() => setBPRefreshTrigger(prev => prev + 1)}
       />
     </div>
   );

@@ -9,6 +9,7 @@ import { Dashboard } from './pages/Dashboard';
 import { History } from './pages/History';
 import { Notifications } from './pages/Notifications';
 import { Profile } from './pages/Profile';
+import { BloodPressurePage } from './pages/BloodPressurePage';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/history" element={<History />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/blood-pressure" element={<BloodPressurePage />} />
           </Route>
         </Routes>
       </Router>

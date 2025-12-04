@@ -114,7 +114,10 @@ export function DeviceManager() {
                 <SimpleList>
                   {discoveredDevices.map((device) => (
                     <SimpleListItem key={device.id} className="flex items-center justify-between">
-                      <span>{device.name}</span>
+                      <div className="space-y-0.5">
+                        <div className="font-medium">{device.name || 'Unknown device'}</div>
+                        <div className="text-xs text-muted-foreground">{device.type || 'Bluetooth'} • {device.id}</div>
+                      </div>
                       <Button
                         variant="outline"
                         size="sm"

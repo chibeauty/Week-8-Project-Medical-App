@@ -15,7 +15,7 @@ export default function LoginPage() {
     try {
       await apiLogin(email, password);
       toast.success('Login successful!');
-      login();
+      login(email);
       navigate('/dashboard');
     } catch (error) {
       toast.error('Invalid credentials. Please try again.');

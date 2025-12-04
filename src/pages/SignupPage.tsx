@@ -20,7 +20,7 @@ export default function SignupPage() {
     try {
       await apiSignup(email, password);
       toast.success('Signup successful!');
-      login();
+      login(email);
       navigate('/dashboard');
     } catch (error) {
       toast.error('Could not create account. Please try again.');
